@@ -26,6 +26,16 @@ on:
         required: false
         default: "/home/deploy/apps"
         type: string
+      scrape_target:
+        description: "Prometheus scrape target (host:port)"
+        required: false
+        default: ""
+        type: string
+      job_name:
+        description: "Prometheus job name label"
+        required: false
+        default: ""
+        type: string
 
 jobs:
   deploy:
@@ -55,6 +65,14 @@ jobs:
           script: |
             cd ${{ inputs.remote_path }}
             [ -f .env ] || cp .env.example .env
+
+            # Override scrape target if provided
+            if [ -n "${{ inputs.scrape_target }}" ]; then
+              sed -i 's|^PROMETHEUS_SCRAPE_TARGET=.*|PROMETHEUS_SCRAPE_TARGET=${{ inputs.scrape_target }}|' .env
+            fi
+            if [ -n "${{ inputs.job_name }}" ]; then
+              sed -i 's|^PROMETHEUS_JOB_NAME=.*|PROMETHEUS_JOB_NAME=${{ inputs.job_name }}|' .env
+            fi
 
             SERVICES="${{ inputs.services }}"
             if [ "$SERVICES" = "all" ]; then
