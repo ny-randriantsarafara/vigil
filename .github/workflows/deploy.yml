@@ -6,7 +6,7 @@ on:
     tags: ["v*"]
 
 env:
-  REMOTE_PATH: /opt/observability-stack
+  REMOTE_PATH: /home/deploy/apps
 
 jobs:
   validate:
