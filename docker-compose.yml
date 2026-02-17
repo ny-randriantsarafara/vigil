@@ -1,4 +1,4 @@
-name: observability-stack
+name: vigil
 
 services:
   prometheus:

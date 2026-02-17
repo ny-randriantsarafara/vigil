@@ -120,6 +120,32 @@ Example environment variable for your app:
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 ```
 
+## Deploying to a VPS
+
+The stack can be deployed to any VPS using the `deploy-manual` GitHub Actions workflow. Each VPS is configured as a **GitHub Environment** with its own secrets.
+
+### Adding a new VPS
+
+1. Go to your repo **Settings → Environments → New environment**
+2. Name it (e.g. `vps-production`, `vps-staging`)
+3. Add these secrets to the environment:
+
+| Secret | Description |
+|--------|-------------|
+| `SSH_HOST` | VPS IP address or hostname |
+| `SSH_USER` | SSH username (e.g. `deploy`) |
+| `SSH_PRIVATE_KEY` | Private key for SSH authentication |
+| `SSH_PORT` | SSH port (optional, defaults to 22) |
+
+### Triggering a deployment
+
+1. Go to **Actions → deploy-manual → Run workflow**
+2. Select the target environment from the dropdown
+3. Choose which services to deploy (or `all`)
+4. Optionally change the remote path (defaults to `/home/deploy/apps`)
+
+The workflow will copy files to the VPS, pull images, start services, and run smoke tests.
+
 ## Stopping the stack
 
 ```bash

@@ -3,6 +3,10 @@ name: deploy-manual
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        description: "Target VPS environment (configure in Settings → Environments)"
+        required: true
+        type: environment
       services:
         description: "Services to deploy (comma-separated, or 'all')"
         required: true
@@ -17,13 +21,16 @@ on:
           - prometheus,grafana
           - prometheus,loki
           - grafana,loki
-
-env:
-  REMOTE_PATH: /home/deploy/apps
+      remote_path:
+        description: "Remote deployment path on the VPS"
+        required: false
+        default: "/home/deploy/apps"
+        type: string
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +43,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           source: "docker-compose.yml,Makefile,prometheus/,loki/,grafana/,scripts/,.env.example,.yamllint"
-          target: ${{ env.REMOTE_PATH }}
+          target: ${{ inputs.remote_path }}
 
       - name: Deploy services
         uses: appleboy/ssh-action@v1.2.0
@@ -46,10 +53,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
-            cd ${{ env.REMOTE_PATH }}
+            cd ${{ inputs.remote_path }}
             [ -f .env ] || cp .env.example .env
 
-            SERVICES="${{ github.event.inputs.services }}"
+            SERVICES="${{ inputs.services }}"
             if [ "$SERVICES" = "all" ]; then
               docker compose pull
               docker compose up -d
@@ -68,5 +75,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
-            cd ${{ env.REMOTE_PATH }}
+            cd ${{ inputs.remote_path }}
             ./scripts/smoke.sh
