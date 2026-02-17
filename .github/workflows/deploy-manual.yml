@@ -45,6 +45,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Resolve effective inputs
+        id: config
+        run: |
+          # vars.* (environment variables) take precedence over workflow inputs
+          echo "remote_path=${{ vars.REMOTE_PATH || inputs.remote_path }}" >> $GITHUB_OUTPUT
+          echo "scrape_target=${{ vars.PROMETHEUS_SCRAPE_TARGET || inputs.scrape_target }}" >> $GITHUB_OUTPUT
+          echo "job_name=${{ vars.PROMETHEUS_JOB_NAME || inputs.job_name }}" >> $GITHUB_OUTPUT
+          echo "services=${{ vars.SERVICES || inputs.services }}" >> $GITHUB_OUTPUT
+
       - name: Copy files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -53,28 +62,40 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           source: "docker-compose.yml,Makefile,prometheus/,loki/,grafana/,scripts/,.env.example,.yamllint"
-          target: ${{ inputs.remote_path }}
+          target: ${{ steps.config.outputs.remote_path }}
 
       - name: Deploy services
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          GRAFANA_ADMIN_USER: ${{ secrets.GRAFANA_ADMIN_USER }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
+          envs: GRAFANA_ADMIN_USER,GRAFANA_ADMIN_PASSWORD
           script: |
-            cd ${{ inputs.remote_path }}
+            cd ${{ steps.config.outputs.remote_path }}
             [ -f .env ] || cp .env.example .env
 
             # Override scrape target if provided
-            if [ -n "${{ inputs.scrape_target }}" ]; then
-              sed -i 's|^PROMETHEUS_SCRAPE_TARGET=.*|PROMETHEUS_SCRAPE_TARGET=${{ inputs.scrape_target }}|' .env
+            if [ -n "${{ steps.config.outputs.scrape_target }}" ]; then
+              sed -i 's|^PROMETHEUS_SCRAPE_TARGET=.*|PROMETHEUS_SCRAPE_TARGET=${{ steps.config.outputs.scrape_target }}|' .env
             fi
-            if [ -n "${{ inputs.job_name }}" ]; then
-              sed -i 's|^PROMETHEUS_JOB_NAME=.*|PROMETHEUS_JOB_NAME=${{ inputs.job_name }}|' .env
+            if [ -n "${{ steps.config.outputs.job_name }}" ]; then
+              sed -i 's|^PROMETHEUS_JOB_NAME=.*|PROMETHEUS_JOB_NAME=${{ steps.config.outputs.job_name }}|' .env
             fi
 
-            SERVICES="${{ inputs.services }}"
+            # Inject Grafana credentials from secrets (no-op if secret is empty)
+            if [ -n "$GRAFANA_ADMIN_USER" ]; then
+              sed -i "s|^GRAFANA_ADMIN_USER=.*|GRAFANA_ADMIN_USER=$GRAFANA_ADMIN_USER|" .env
+            fi
+            if [ -n "$GRAFANA_ADMIN_PASSWORD" ]; then
+              sed -i "s|^GRAFANA_ADMIN_PASSWORD=.*|GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD|" .env
+            fi
+
+            SERVICES="${{ steps.config.outputs.services }}"
             if [ "$SERVICES" = "all" ]; then
               docker compose pull
               docker compose up -d
@@ -93,5 +114,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
-            cd ${{ inputs.remote_path }}
+            cd ${{ steps.config.outputs.remote_path }}
             ./scripts/smoke.sh
