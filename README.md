@@ -1,13 +1,20 @@
-# Observability Stack
+# Docker Compose Observability Stack (Grafana, Prometheus, Loki, Jaeger)
 
-Reusable Docker Compose observability stack with Grafana, Prometheus, Loki, and Jaeger.
+Reusable self-hosted observability stack for local development and pre-production environments. This repository helps you run end-to-end monitoring with Prometheus metrics, Loki logs, Jaeger traces, and Grafana dashboards in one Docker Compose setup.
 
 ## What this repository provides
 
-- Metrics collection via Prometheus (`/metrics` scraping)
-- Logs storage/search via Loki
-- Traces visualization via Jaeger (OTLP HTTP endpoint)
-- Unified dashboards in Grafana with pre-provisioned datasources and dashboards
+- Metrics collection with Prometheus (`/metrics` scraping)
+- Centralized log storage and query with Loki
+- Distributed tracing with Jaeger via OpenTelemetry OTLP HTTP
+- Unified observability dashboards in Grafana with pre-provisioned datasources and dashboards
+
+## Best-fit use cases
+
+- Bootstrap observability for an API or microservice quickly
+- Run a local monitoring stack for metrics, logs, and traces
+- Validate OpenTelemetry instrumentation end to end
+- Demo Grafana correlation between metrics, logs, and trace data
 
 ## Runtime contract with your application
 
@@ -49,9 +56,15 @@ Set values in `.env` (see `.env.example`):
 - `PROMETHEUS_RETENTION` (default `15d`)
 - `LOKI_RETENTION` (default `168h`)
 
-## Linux note
+## Linux networking note
 
 If `host.docker.internal` does not resolve on your host, keep `extra_hosts` enabled in `docker-compose.yml` (`host.docker.internal:host-gateway`) or set `PROMETHEUS_SCRAPE_TARGET` to an explicit reachable host/IP.
+
+## Documentation
+
+- Getting started: `docs/getting-started.md`
+- Overview: `docs/overview.md`
+- Technical details: `docs/details.md`
 
 ## Validation
 
