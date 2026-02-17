@@ -1,0 +1,72 @@
+name: deploy-manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      services:
+        description: "Services to deploy (comma-separated, or 'all')"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - prometheus
+          - grafana
+          - loki
+          - jaeger
+          - prometheus,grafana
+          - prometheus,loki
+          - grafana,loki
+
+env:
+  REMOTE_PATH: /opt/observability-stack
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "docker-compose.yml,Makefile,prometheus/,loki/,grafana/,scripts/,.env.example,.yamllint"
+          target: ${{ env.REMOTE_PATH }}
+
+      - name: Deploy services
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd ${{ env.REMOTE_PATH }}
+            [ -f .env ] || cp .env.example .env
+
+            SERVICES="${{ github.event.inputs.services }}"
+            if [ "$SERVICES" = "all" ]; then
+              docker compose pull
+              docker compose up -d
+            else
+              # Replace commas with spaces for docker compose
+              SERVICES=$(echo "$SERVICES" | tr ',' ' ')
+              docker compose pull $SERVICES
+              docker compose up -d $SERVICES
+            fi
+
+      - name: Smoke tests
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd ${{ env.REMOTE_PATH }}
+            ./scripts/smoke.sh
