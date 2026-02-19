@@ -1,0 +1,480 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Route latency p50 (ms) - top 10",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": { "mode": "palette-classic" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 300 },
+              { "color": "red", "value": 800 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": [] },
+        "tooltip": { "mode": "single", "sort": "none", "maxHeight": 600 }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "legendFormat": "{{route}}",
+          "expr": "topk(10, (1000 * histogram_quantile(0.50, sum by (le, route) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])))) and on(route) (sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])) > 0.2))"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Route latency p95 (ms) - top 10",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": { "mode": "palette-classic" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 300 },
+              { "color": "red", "value": 800 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": [] },
+        "tooltip": { "mode": "single", "sort": "none", "maxHeight": 600 }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "legendFormat": "{{route}}",
+          "expr": "topk(10, (1000 * histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])))) and on(route) (sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])) > 0.2))"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Route latency p99 (ms) - top 10",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": { "mode": "palette-classic" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 300 },
+              { "color": "red", "value": 800 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": [] },
+        "tooltip": { "mode": "single", "sort": "none", "maxHeight": 600 }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "legendFormat": "{{route}}",
+          "expr": "topk(10, (1000 * histogram_quantile(0.99, sum by (le, route) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])))) and on(route) (sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])) > 0.2))"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "RPS by route - top 10",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": { "mode": "palette-classic" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": [] },
+        "tooltip": { "mode": "single", "sort": "none", "maxHeight": 600 }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "legendFormat": "{{route}}",
+          "expr": "topk(10, sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])))"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "5xx error rate by route (%) - top 10",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "color": { "mode": "palette-classic" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": [] },
+        "tooltip": { "mode": "single", "sort": "none", "maxHeight": 600 }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "legendFormat": "{{route}}",
+          "expr": "topk(10, 100 * (sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\", status_code=~\"5..\"}[5m])) / clamp_min(sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])), 0.001)))"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "bargauge",
+      "title": "Top 10 slowest routes (current p95 ms)",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 300 },
+              { "color": "red", "value": 800 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": true,
+          "legendFormat": "{{route}}",
+          "expr": "topk(10, (1000 * histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])))) and on(route) (sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])) > 0.2))"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "heatmap",
+      "title": "Latency distribution heatmap (all routes)",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "continuous-YlOrRd" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "calculate": false,
+        "yAxis": { "unit": "s" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false,
+          "expr": "sum by(le) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m]))"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Route summary (p50/p95/p99/rps/error%)",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": { "custom": {} },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "p50_ms" }, "properties": [{ "id": "unit", "value": "ms" }] },
+          { "matcher": { "id": "byName", "options": "p95_ms" }, "properties": [{ "id": "unit", "value": "ms" }] },
+          { "matcher": { "id": "byName", "options": "p99_ms" }, "properties": [{ "id": "unit", "value": "ms" }] },
+          { "matcher": { "id": "byName", "options": "rps" }, "properties": [{ "id": "unit", "value": "reqps" }] },
+          { "matcher": { "id": "byName", "options": "error_rate_pct" }, "properties": [{ "id": "unit", "value": "percent" }] }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": { "show": false }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "topk(10, 1000 * histogram_quantile(0.50, sum by (le, route) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m]))))",
+          "legendFormat": "{{route}}"
+        },
+        {
+          "refId": "B",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "topk(10, 1000 * histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m]))))",
+          "legendFormat": "{{route}}"
+        },
+        {
+          "refId": "C",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "topk(10, 1000 * histogram_quantile(0.99, sum by (le, route) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m]))))",
+          "legendFormat": "{{route}}"
+        },
+        {
+          "refId": "D",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "topk(10, sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])))",
+          "legendFormat": "{{route}}"
+        },
+        {
+          "refId": "E",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "topk(10, 100 * (sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\", status_code=~\"5..\"}[5m])) / clamp_min(sum by(route) (rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])), 0.001)))",
+          "legendFormat": "{{route}}"
+        }
+      ],
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "columns" } },
+        { "id": "joinByField", "options": { "mode": "outer", "byField": "route" } },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true },
+            "renameByName": {
+              "route": "route",
+              "Value #A": "p50_ms",
+              "Value #B": "p95_ms",
+              "Value #C": "p99_ms",
+              "Value #D": "rps",
+              "Value #E": "error_rate_pct"
+            }
+          }
+        },
+        { "id": "sortBy", "options": { "sort": [{ "field": "p95_ms", "desc": true }] } }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "Global p95 (ms)",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 26 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 300 },
+              { "color": "red", "value": 800 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "1000 * histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])))"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Requests under 300ms (%)",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 26 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 90 },
+              { "color": "green", "value": 98 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "100 * (sum(rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\", le=\"0.3\"}[5m])) / clamp_min(sum(rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])), 0.001))"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Apdex-like score (%)",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 26 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 85 },
+              { "color": "green", "value": 95 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "expr": "100 * ((sum(rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\", le=\"0.3\"}[5m])) + (sum(rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\", le=\"1.2\"}[5m])) - sum(rate(http_request_duration_seconds_bucket{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\", le=\"0.3\"}[5m]))) / 2) / clamp_min(sum(rate(http_request_duration_seconds_count{route!~\"^/_next.*|^/\\\\.well-known.*|^/favicon\\\\.ico$|^/robots\\\\.txt$|^/metrics$|^/health$\"}[5m])), 0.001))"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["latency", "routes", "slo"],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Prometheus", "value": "Prometheus" }
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Latencies",
+  "uid": "afdqwt58izda8b",
+  "version": 9,
+  "weekStart": ""
+}
